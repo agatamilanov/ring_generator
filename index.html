@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Ring Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three-stl-exporter/1.4.0/STLExporter.min.js"></script>
+</head>
+<body>
+    <input type="number" id="ringSize" min="1" max="20" value="10">
+    <button onclick="generateRing()">Generate Ring</button>
+    <button onclick="downloadSTL()">Download STL</button>
+    <div id="3d-viewer"></div>
+
+    <script>
+        let scene, camera, renderer, ring;
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(400, 400);
+            document.getElementById('3d-viewer').appendChild(renderer.domElement);
+            camera.position.z = 5;
+        }
+
+        function generateRing() {
+            const size = document.getElementById('ringSize').value;
+            const geometry = new THREE.TorusGeometry(size / 10, 0.1, 16, 100);
+            const material = new THREE.MeshBasicMaterial({color: 0xffff00});
+            if (ring) scene.remove(ring);
+            ring = new THREE.Mesh(geometry, material);
+            scene.add(ring);
+            renderer.render(scene, camera);
+        }
+
+        function downloadSTL() {
+            if (!ring) return;
+            const exporter = new THREE.STLExporter();
+            const stl = exporter.parse(scene);
+            const blob = new Blob([stl], {type: 'text/plain'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'ring.stl';
+            link.click();
+        }
+
+        init();
+    </script>
+</body>
+</html>
