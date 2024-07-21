@@ -4,47 +4,91 @@
     <title>3D Ring Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three-stl-exporter/1.4.0/STLExporter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        #3d-viewer {
+            width: 400px;
+            height: 400px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            margin-top: 20px;
+        }
+        input, button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <input type="number" id="ringSize" min="1" max="20" value="10">
+    <input type="number" id="ringSize" min="42" max="70" value="52">
     <button onclick="generateRing()">Generate Ring</button>
     <button onclick="downloadSTL()">Download STL</button>
     <div id="3d-viewer"></div>
 
     <script>
-        let scene, camera, renderer, ring;
+        let scene, camera, renderer, ring, controls;
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
             renderer = new THREE.WebGLRenderer();
             renderer.setSize(400, 400);
             document.getElementById('3d-viewer').appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
             camera.position.z = 5;
         }
 
         function generateRing() {
             const size = document.getElementById('ringSize').value;
-            const geometry = new THREE.TorusGeometry(size / 10, 0.1, 16, 100);
-            const material = new THREE.MeshBasicMaterial({color: 0xffff00});
+            const radius = size / (2 * Math.PI);
+            const geometry = new THREE.TorusGeometry(radius, 0.1, 16, 100);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
             if (ring) scene.remove(ring);
             ring = new THREE.Mesh(geometry, material);
             scene.add(ring);
-            renderer.render(scene, camera);
+            animate();
         }
 
         function downloadSTL() {
             if (!ring) return;
             const exporter = new THREE.STLExporter();
             const stl = exporter.parse(scene);
-            const blob = new Blob([stl], {type: 'text/plain'});
+            const blob = new Blob([stl], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'ring.stl';
             link.click();
         }
 
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
         init();
+        animate();
     </script>
 </body>
 </html>
