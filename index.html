@@ -3,15 +3,15 @@
 <head>
     <title>3D Ring Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three-stl-exporter/1.4.0/STLExporter.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.rawgit.com/mrdoob/three.js/master/examples/js/exporters/STLExporter.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #f4f4f4;
+            background-color: #ffffff;
             margin: 0;
             padding: 20px;
         }
@@ -51,7 +51,7 @@
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer();
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(400, 400);
             document.getElementById('3d-viewer').appendChild(renderer.domElement);
 
@@ -73,8 +73,8 @@
         function downloadSTL() {
             if (!ring) return;
             const exporter = new THREE.STLExporter();
-            const stl = exporter.parse(scene);
-            const blob = new Blob([stl], { type: 'text/plain' });
+            const stlString = exporter.parse(ring);
+            const blob = new Blob([stlString], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'ring.stl';
