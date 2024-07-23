@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Ring Generator</title>
+    <title>3D Generátor Prsteňov</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,29 +40,36 @@
         button:hover {
             background-color: #0056b3;
         }
+        #message {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
+    <label for="ringSize">Veľkosť prsteňa:</label>
     <input type="number" id="ringSize" min="42" max="70" value="52">
-    <button onclick="generateRing()">Generate Ring</button>
-    <button onclick="downloadSTL()">Download STL</button>
+    <button onclick="generateRing()">Generovať prsteň</button>
+    <div id="message"></div>
     <div id="3d-viewer"></div>
+    <button onclick="downloadSTL()">Stiahnuť STL</button>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/STLExporter.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script>
-        let scene, camera, renderer, ring, controls;
+        let scene, camera, renderer, ring, controls, design;
 
         function init() {
             scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+            scene.background = new THREE.Color(0xdddddd);
+
+            camera = new THREE.PerspectiveCamera(40, 1, 1, 5000);
+            camera.position.set(0, 0, 50);
+
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(400, 400);
             document.getElementById('3d-viewer').appendChild(renderer.domElement);
 
             controls = new THREE.OrbitControls(camera, renderer.domElement);
-            camera.position.set(0, 0, 10);
 
             const ambientLight = new THREE.AmbientLight(0x404040);
             scene.add(ambientLight);
@@ -67,18 +78,59 @@
             directionalLight.position.set(0, 10, 10).normalize();
             scene.add(directionalLight);
 
+            // Pridanie bodových svetiel
+            const light1 = new THREE.PointLight(0xc4c4c4, 10);
+            light1.position.set(0, 300, 500);
+            scene.add(light1);
+
+            const light2 = new THREE.PointLight(0xc4c4c4, 10);
+            light2.position.set(500, 100, 0);
+            scene.add(light2);
+
+            const light3 = new THREE.PointLight(0xc4c4c4, 10);
+            light3.position.set(0, 100, -500);
+            scene.add(light3);
+
+            const light4 = new THREE.PointLight(0xc4c4c4, 10);
+            light4.position.set(-500, 300, 500);
+            scene.add(light4);
+
             animate();
         }
 
         function generateRing() {
             const size = document.getElementById('ringSize').value;
             const radius = size / (2 * Math.PI);
-            const geometry = new THREE.TorusGeometry(radius, 0.1, 16, 100);
+            const designs = ['jednoduchý', 'ryhovaný', 'textúrovaný'];
+            design = designs[Math.floor(Math.random() * designs.length)];
+            let geometry;
+
+            if (ring) {
+                scene.remove(ring);
+            }
+
+            switch (design) {
+                case 'ryhovaný':
+                    geometry = new THREE.TorusGeometry(radius, 0.1, 16, 100);
+                    const grooveGeometry = new THREE.TorusGeometry(radius, 0.05, 8, 50);
+                    const grooveMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+                    const groove = new THREE.Mesh(grooveGeometry, grooveMaterial);
+                    groove.position.set(0, 0.08, 0);
+                    scene.add(groove);
+                    break;
+                case 'textúrovaný':
+                    geometry = new THREE.TorusKnotGeometry(radius, 0.1, 100, 16);
+                    break;
+                default:
+                    geometry = new THREE.TorusGeometry(radius, 0.1, 16, 100);
+                    break;
+            }
+
             const material = new THREE.MeshPhongMaterial({ color: 0xffff00 });
-            if (ring) scene.remove(ring);
             ring = new THREE.Mesh(geometry, material);
             scene.add(ring);
-            animate();
+
+            document.getElementById('message').innerText = `Vygenerovala sa Ti prsteň "${design}" veľkosti ${size}`;
         }
 
         function downloadSTL() {
@@ -87,8 +139,9 @@
             const stlString = exporter.parse(ring);
             const blob = new Blob([stlString], { type: 'text/plain' });
             const link = document.createElement('a');
+            const size = document.getElementById('ringSize').value;
             link.href = URL.createObjectURL(blob);
-            link.download = 'ring.stl';
+            link.download = `ring_${size}_${design}.stl`; // Upravený názov súboru
             link.click();
         }
 
