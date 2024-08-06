@@ -87,12 +87,6 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.update();
 
-      //  const axesHelper = new THREE.AxesHelper(5);
-      //  scene.add(axesHelper);
-
-     //   const gridHelper = new THREE.GridHelper(15, 50);
-      //  scene.add(gridHelper);
-
         const ambientLight = new THREE.AmbientLight(0x404040, 2);
         scene.add(ambientLight);
 
@@ -112,6 +106,17 @@
             spotLight.castShadow = true;
 
             scene.add(spotLight);
+        }
+
+        // Funkcia na vytvorenie druhej scény a kamery pre prierez
+        function initCrossSection() {
+            crossSectionScene = new THREE.Scene();
+            crossSectionCamera = new THREE.OrthographicCamera(-10, 10, 10, -10, 0.1, 1000);
+            crossSectionCamera.position.z = 10;
+
+            crossSectionRenderer = new THREE.WebGLRenderer({ antialias: true });
+            crossSectionRenderer.setSize(200, 200);
+            document.getElementById('cross-section-viewer').appendChild(crossSectionRenderer.domElement);
         }
 
         function generateRing() {
@@ -170,8 +175,9 @@
         function downloadSTL() {
             if (!ring) return;
 
-            // Zafixovanie rotácie pred exportom
+            // Zafixovanie rotácie a posunutie prsteňa pred exportom
             ring.rotation.set(0, 0, 0);
+            ring.position.set(0, 0, 0);
 
             const exporter = new THREE.STLExporter();
             const stlString = exporter.parse(ring);
