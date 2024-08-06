@@ -70,7 +70,7 @@
         const ringSize = 52;
 
         const viewer = document.getElementById('3d-viewer');
-        const renderer = new THREE.WebGLRenderer();
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         viewer.appendChild(renderer.domElement);
 
         const scene = new THREE.Scene();
@@ -126,6 +126,7 @@
 
             const width = Math.random() * (4.5 - 2) + 2;
             const thickness = Math.random() * (1.8 - 1.5) + 1.5;
+            const rounding = 0.15;
 
             const shape = new THREE.Shape();
             const halfWidth = width / 2;
@@ -133,13 +134,13 @@
             // Vytvorenie prsteňa so zaoblenými rohmi
             shape.moveTo(radius, -halfWidth);
             shape.lineTo(radius, halfWidth);
-            shape.quadraticCurveTo(radius, halfWidth + 0.15, radius + 0.15, halfWidth + 0.15);
-            shape.lineTo(radius + thickness - 0.15, halfWidth + 0.15);
-            shape.quadraticCurveTo(radius + thickness, halfWidth + 0.15, radius + thickness, halfWidth);
+            shape.quadraticCurveTo(radius, halfWidth + rounding, radius + rounding, halfWidth + rounding);
+            shape.lineTo(radius + thickness - rounding, halfWidth + rounding);
+            shape.quadraticCurveTo(radius + thickness, halfWidth + rounding, radius + thickness, halfWidth);
             shape.lineTo(radius + thickness, -halfWidth);
-            shape.quadraticCurveTo(radius + thickness, -halfWidth - 0.15, radius + thickness - 0.15, -halfWidth - 0.15);
-            shape.lineTo(radius + 0.15, -halfWidth - 0.15);
-            shape.quadraticCurveTo(radius, -halfWidth - 0.15, radius, -halfWidth);
+            shape.quadraticCurveTo(radius + thickness, -halfWidth - rounding, radius + thickness - rounding, -halfWidth - rounding);
+            shape.lineTo(radius + rounding, -halfWidth - rounding);
+            shape.quadraticCurveTo(radius, -halfWidth - rounding, radius, -halfWidth);
 
             // Zabezpečenie uzavretia tvaru
             shape.closePath();
@@ -156,7 +157,12 @@
             ring = new THREE.Mesh(geometry, material);
             scene.add(ring);
 
-            document.getElementById('message').innerText = `Vygenerovala sa Ti prsteň veľkosti ${size}`;
+            document.getElementById('message').innerHTML = `
+                Vygeneroval sa Ti prsteň veľkosti: ${size} mm<br>
+                Výška prsteňa je: ${width.toFixed(2)} mm<br>
+                Síla: ${thickness.toFixed(2)} mm<br>
+                Zaoblenie: ${rounding} mm
+            `;
         }
 
         function downloadSTL() {
