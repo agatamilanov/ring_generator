@@ -97,7 +97,7 @@
             scene.add(spotLight);
         }
 
-        function generateRing() {
+       function generateRing() {
             const size = document.getElementById('ringSize').value;
             const radius = size / (2 * Math.PI);
             let geometry;
@@ -108,7 +108,6 @@
 
             const width = Math.random() * (4.5 - 2) + 2;
             const thickness = Math.random() * (1.8 - 1.5) + 1.5;
-            const rounding = 0.15;
 
             const shape = new THREE.Shape();
             const halfWidth = width / 2;
@@ -116,13 +115,13 @@
             // Vytvorenie prsteňa so zaoblenými rohmi
             shape.moveTo(radius, -halfWidth);
             shape.lineTo(radius, halfWidth);
-            shape.quadraticCurveTo(radius, halfWidth + rounding, radius + rounding, halfWidth + rounding);
-            shape.lineTo(radius + thickness - rounding, halfWidth + rounding);
-            shape.quadraticCurveTo(radius + thickness, halfWidth + rounding, radius + thickness, halfWidth);
+            shape.quadraticCurveTo(radius, halfWidth + 0.15, radius + 0.15, halfWidth + 0.15);
+            shape.lineTo(radius + thickness - 0.15, halfWidth + 0.15);
+            shape.quadraticCurveTo(radius + thickness, halfWidth + 0.15, radius + thickness, halfWidth);
             shape.lineTo(radius + thickness, -halfWidth);
-            shape.quadraticCurveTo(radius + thickness, -halfWidth - rounding, radius + thickness - rounding, -halfWidth - rounding);
-            shape.lineTo(radius + rounding, -halfWidth - rounding);
-            shape.quadraticCurveTo(radius, -halfWidth - rounding, radius, -halfWidth);
+            shape.quadraticCurveTo(radius + thickness, -halfWidth - 0.15, radius + thickness - 0.15, -halfWidth - 0.15);
+            shape.lineTo(radius + 0.15, -halfWidth - 0.15);
+            shape.quadraticCurveTo(radius, -halfWidth - 0.15, radius, -halfWidth);
 
             // Zabezpečenie uzavretia tvaru
             shape.closePath();
@@ -138,6 +137,7 @@
 
             ring = new THREE.Mesh(geometry, material);
             scene.add(ring);
+
 
             document.getElementById('message').innerHTML = `
                 Vygeneroval sa Ti prsteň veľkosti: ${size} mm<br>
