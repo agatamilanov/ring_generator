@@ -19,11 +19,21 @@
             padding: 20px;
         }
         #3d-viewer {
-            width: 400px;
-            height: 400px;
+            width: 100%;
+            max-width: 400px;
+            height: 0;
+            padding-bottom: 100%; /* Keeps aspect ratio 1:1 */
+            position: relative;
             border: 1px solid #ccc;
             background-color: #fff;
             margin-top: 20px;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
         input, button {
             margin: 5px;
@@ -59,15 +69,15 @@
         let ring;
         const ringSize = 52;
 
+        const viewer = document.getElementById('3d-viewer');
         const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('3d-viewer').appendChild(renderer.domElement);
+        viewer.appendChild(renderer.domElement);
 
         const scene = new THREE.Scene();
 
         const camera = new THREE.PerspectiveCamera(
             75,
-            window.innerWidth / window.innerHeight,
+            viewer.clientWidth / viewer.clientHeight,
             0.1,
             1000 
         );
@@ -96,6 +106,14 @@
 
             scene.add(spotLight);
         }
+
+        function onWindowResize() {
+            camera.aspect = viewer.clientWidth / viewer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+        }
+
+        window.addEventListener('resize', onWindowResize);
 
         function generateRing() {
             const size = document.getElementById('ringSize').value;
@@ -175,6 +193,7 @@
         }
 
         function init() {
+            onWindowResize(); // Initial resize to set sizes
             renderer.setAnimationLoop(animate);
         }
 
