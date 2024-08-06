@@ -158,6 +158,7 @@
             const exporter = new THREE.STLExporter();
             const stlString = exporter.parse(ring);
             const blob = new Blob([stlString], { type: 'application/octet-stream' });
+            const link = document.createElement('a');
             const ringSize = document.getElementById('ringSize').value;
             link.href = URL.createObjectURL(blob);
             link.download = `ring_${ringSize}.stl`;
