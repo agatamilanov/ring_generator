@@ -132,6 +132,8 @@
 
             // Uzavretie otvorených hrán
             geometry.computeVertexNormals();
+            geometry.mergeVertices(); // ensures vertices are merged
+
             const material = new THREE.MeshPhongMaterial({ 
                 color: 0xFFD700,
                 shininess: 100,
