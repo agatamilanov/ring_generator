@@ -18,6 +18,10 @@
             margin: 0;
             padding: 20px;
         }
+        #version {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
         #3d-viewer {
             width: 400px;
             height: 400px;
@@ -48,6 +52,7 @@
     </style>
 </head>
 <body>
+    <div id="version">Pracovna verzia #20</div>
     <label for="ringSize">Veľkosť prsteňa:</label>
     <input type="number" id="ringSize" min="42" max="70" value="52">
     <button id="generateButton">Generovať prsteň</button>
@@ -58,6 +63,7 @@
 
     <script>
         let ring;
+        let versionNumber = 20;
         const ringSize = 52;
 
         const renderer = new THREE.WebGLRenderer();
@@ -155,6 +161,10 @@
             const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
             const crossSectionLine = new THREE.Line(crossSectionGeometry, lineMaterial);
             crossSectionScene.add(crossSectionLine);
+
+            // Inkrementovanie verzie
+            versionNumber++;
+            document.getElementById('version').innerText = `Pracovna verzia #${versionNumber}`;
 
             document.getElementById('message').innerText = `Vygenerovala sa Ti prsteň veľkosti ${size}`;
         }
