@@ -60,14 +60,14 @@
         const ringSize = 52;
 
         const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(400, 400);  // Fixing the size to 400x400 to avoid scaling issues
         document.getElementById('3d-viewer').appendChild(renderer.domElement);
 
         const scene = new THREE.Scene();
 
         const camera = new THREE.PerspectiveCamera(
             75,
-            window.innerWidth / window.innerHeight,
+            400 / 400,  // Fixing the aspect ratio to 1:1
             0.1,
             1000 
         );
@@ -128,20 +128,7 @@
             shape.closePath();
 
             const points = shape.getPoints();
-            geometry = new THREE.LatheBufferGeometry(points, 100);
-
-            // Vytvorenie uzavretých viek na oboch koncoch
-            const capShape1 = new THREE.Shape();
-            capShape1.absarc(0, 0, radius, 0, Math.PI * 2, false);
-            const capGeometry1 = new THREE.ShapeBufferGeometry(capShape1);
-            capGeometry1.rotateX(Math.PI / 2);
-            capGeometry1.translate(0, -halfWidth, 0);
-
-            const capShape2 = new THREE.Shape();
-            capShape2.absarc(0, 0, radius + thickness, 0, Math.PI * 2, false);
-            const capGeometry2 = new THREE.ShapeBufferGeometry(capShape2);
-            capGeometry2.rotateX(Math.PI / 2);
-            capGeometry2.translate(0, halfWidth, 0);
+            geometry = new THREE.LatheGeometry(points, 100);
 
             const material = new THREE.MeshPhongMaterial({ 
                 color: 0xFFD700,
@@ -149,16 +136,7 @@
                 reflectivity: 0.9
             });
 
-            const latheMesh = new THREE.Mesh(geometry, material);
-            const capMesh1 = new THREE.Mesh(capGeometry1, material);
-            const capMesh2 = new THREE.Mesh(capGeometry2, material);
-
-            const group = new THREE.Group();
-            group.add(latheMesh);
-            group.add(capMesh1);
-            group.add(capMesh2);
-
-            ring = group;
+            ring = new THREE.Mesh(geometry, material);
             scene.add(ring);
 
             document.getElementById('message').innerHTML = `
