@@ -53,6 +53,7 @@
     <button id="generateButton">Generovať prsteň</button>
     <div id="message"></div>
     <div id="3d-viewer"></div>
+    <div id="crossSectionViewer"></div>
     <button id="downloadButton">Stiahnuť STL</button>
 
     <script>
@@ -97,6 +98,14 @@
             scene.add(spotLight);
         }
 
+        const crossSectionRenderer = new THREE.WebGLRenderer();
+        crossSectionRenderer.setSize(400, 400);
+        document.getElementById('crossSectionViewer').appendChild(crossSectionRenderer.domElement);
+
+        const crossSectionScene = new THREE.Scene();
+        const crossSectionCamera = new THREE.OrthographicCamera(-200, 200, 200, -200, 1, 1000);
+        crossSectionCamera.position.set(0, 0, 10);
+
         function generateRing() {
             const size = document.getElementById('ringSize').value;
             const radius = size / (2 * Math.PI);
@@ -104,11 +113,13 @@
 
             if (ring) {
                 scene.remove(ring);
+                if (crossSectionScene.children.length > 0) {
+                    crossSectionScene.remove(crossSectionScene.children[0]);
+                }
             }
 
             const width = Math.random() * (4.5 - 2) + 2;
             const thickness = Math.random() * (1.8 - 1.5) + 1.5;
-            const rounding = 0.15;
 
             const shape = new THREE.Shape();
             const halfWidth = width / 2;
@@ -116,13 +127,13 @@
             // Vytvorenie prsteňa so zaoblenými rohmi
             shape.moveTo(radius, -halfWidth);
             shape.lineTo(radius, halfWidth);
-            shape.quadraticCurveTo(radius, halfWidth + rounding, radius + rounding, halfWidth + rounding);
-            shape.lineTo(radius + thickness - rounding, halfWidth + rounding);
-            shape.quadraticCurveTo(radius + thickness, halfWidth + rounding, radius + thickness, halfWidth);
+            shape.quadraticCurveTo(radius, halfWidth + 0.15, radius + 0.15, halfWidth + 0.15);
+            shape.lineTo(radius + thickness - 0.15, halfWidth + 0.15);
+            shape.quadraticCurveTo(radius + thickness, halfWidth + 0.15, radius + thickness, halfWidth);
             shape.lineTo(radius + thickness, -halfWidth);
-            shape.quadraticCurveTo(radius + thickness, -halfWidth - rounding, radius + thickness - rounding, -halfWidth - rounding);
-            shape.lineTo(radius + rounding, -halfWidth - rounding);
-            shape.quadraticCurveTo(radius, -halfWidth - rounding, radius, -halfWidth);
+            shape.quadraticCurveTo(radius + thickness, -halfWidth - 0.15, radius + thickness - 0.15, -halfWidth - 0.15);
+            shape.lineTo(radius + 0.15, -halfWidth - 0.15);
+            shape.quadraticCurveTo(radius, -halfWidth - 0.15, radius, -halfWidth);
 
             // Zabezpečenie uzavretia tvaru
             shape.closePath();
@@ -139,12 +150,13 @@
             ring = new THREE.Mesh(geometry, material);
             scene.add(ring);
 
-            document.getElementById('message').innerHTML = `
-                Vygeneroval sa Ti prsteň veľkosti: ${size} mm<br>
-                Výška prsteňa je: ${width.toFixed(2)} mm<br>
-                Síla: ${thickness.toFixed(2)} mm<br>
-                Zaoblenie: ${rounding} mm
-            `;
+            // Vytvorenie prierezu pomocou čiarového grafu
+            const crossSectionGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+            const crossSectionLine = new THREE.Line(crossSectionGeometry, lineMaterial);
+            crossSectionScene.add(crossSectionLine);
+
+            document.getElementById('message').innerText = `Vygenerovala sa Ti prsteň veľkosti ${size}`;
         }
 
         function downloadSTL() {
@@ -178,6 +190,7 @@
             }
             controls.update();
             renderer.render(scene, camera);
+            crossSectionRenderer.render(crossSectionScene, crossSectionCamera);
         }
 
         function init() {
