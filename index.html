@@ -162,17 +162,7 @@
         function downloadSTL() {
             if (!ring) return;
 
-            // Zafixovanie rotácie a posunutie prsteňa pred exportom
-            ring.rotation.set(Math.PI / 2, 0, 0);
-            const box = new THREE.Box3().setFromObject(ring);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-
-            // Nastavíme prsteň tak, aby ležal na podložke
-            ring.position.x = -center.x;
-            ring.position.y = -center.y + size.y / 2;
-            ring.position.z = -center.z;
-
+            // Export prstena bez zmeny rotácie a pozície
             const exporter = new THREE.STLExporter();
             const stlString = exporter.parse(ring);
             const blob = new Blob([stlString], { type: 'application/octet-stream' });
