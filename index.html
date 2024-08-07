@@ -52,7 +52,7 @@
     </style>
 </head>
 <body>
-    <div id="version">Pracovna verzia #20</div>
+    <div id="version">Pracovna verzia #21</div>
     <label for="ringSize">Veľkosť prsteňa:</label>
     <input type="number" id="ringSize" min="42" max="70" value="52">
     <button id="generateButton">Generovať prsteň</button>
@@ -63,7 +63,7 @@
 
     <script>
         let ring;
-        let versionNumber = 20;
+        let versionNumber = 21;  // Manuálne inkrementujte toto číslo pri každej aktualizácii kódu
         const ringSize = 52;
 
         const renderer = new THREE.WebGLRenderer();
@@ -162,17 +162,14 @@
             const crossSectionLine = new THREE.Line(crossSectionGeometry, lineMaterial);
             crossSectionScene.add(crossSectionLine);
 
-            // Inkrementovanie verzie
-            versionNumber++;
-            document.getElementById('version').innerText = `Pracovna verzia #${versionNumber}`;
-
             document.getElementById('message').innerText = `Vygenerovala sa Ti prsteň veľkosti ${size}`;
         }
 
         function downloadSTL() {
             if (!ring) return;
 
-            // Export prstena bez zmeny rotácie a pozície
+            // Rotácia prstena pred exportom
+            ring.rotation.set(Math.PI / 2, 0, 0);
             const exporter = new THREE.STLExporter();
             const stlString = exporter.parse(ring);
             const blob = new Blob([stlString], { type: 'application/octet-stream' });
@@ -181,6 +178,9 @@
             link.href = URL.createObjectURL(blob);
             link.download = `ring_${ringSize}.stl`;
             link.click();
+
+            // Resetovanie rotácie prstena po exporte
+            ring.rotation.set(0, 0, 0);
         }
 
         function animate(time) {
