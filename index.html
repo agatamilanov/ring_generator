@@ -131,16 +131,17 @@
             geometry = new THREE.LatheBufferGeometry(points, 100);
 
             // Vytvorenie uzavretých viek na oboch koncoch
-            const capShape = new THREE.Shape();
-            capShape.moveTo(radius, 0);
-            capShape.lineTo(radius + thickness, 0);
-            capShape.lineTo(radius + thickness, 2 * halfWidth);
-            capShape.lineTo(radius, 2 * halfWidth);
-            capShape.closePath();
+            const capShape1 = new THREE.Shape();
+            capShape1.absarc(0, 0, radius, 0, Math.PI * 2, false);
+            const capGeometry1 = new THREE.ShapeBufferGeometry(capShape1);
+            capGeometry1.rotateX(Math.PI / 2);
+            capGeometry1.translate(0, -halfWidth, 0);
 
-            const capGeometry = new THREE.ShapeBufferGeometry(capShape);
-            capGeometry.rotateX(Math.PI / 2);
-            capGeometry.translate(0, -halfWidth, 0);
+            const capShape2 = new THREE.Shape();
+            capShape2.absarc(0, 0, radius + thickness, 0, Math.PI * 2, false);
+            const capGeometry2 = new THREE.ShapeBufferGeometry(capShape2);
+            capGeometry2.rotateX(Math.PI / 2);
+            capGeometry2.translate(0, halfWidth, 0);
 
             const material = new THREE.MeshPhongMaterial({ 
                 color: 0xFFD700,
@@ -149,9 +150,8 @@
             });
 
             const latheMesh = new THREE.Mesh(geometry, material);
-            const capMesh1 = new THREE.Mesh(capGeometry, material);
-            const capMesh2 = capMesh1.clone();
-            capMesh2.position.y = halfWidth;
+            const capMesh1 = new THREE.Mesh(capGeometry1, material);
+            const capMesh2 = new THREE.Mesh(capGeometry2, material);
 
             const group = new THREE.Group();
             group.add(latheMesh);
