@@ -130,9 +130,17 @@
             const points = shape.getPoints();
             geometry = new THREE.LatheGeometry(points, 100);
 
-            // Uzavretie otvorených hrán
-            geometry.computeVertexNormals();
-            geometry.mergeVertices(); // ensures vertices are merged
+            // Vytvorenie uzavretých viek na oboch koncoch
+            const capGeometry1 = new THREE.CircleGeometry(radius, 100);
+            const capGeometry2 = new THREE.CircleGeometry(radius + thickness, 100);
+            capGeometry1.translate(0, halfWidth, 0);
+            capGeometry2.translate(0, -halfWidth, 0);
+
+            const latheBufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+            const capBufferGeometry1 = new THREE.BufferGeometry().fromGeometry(capGeometry1);
+            const capBufferGeometry2 = new THREE.BufferGeometry().fromGeometry(capGeometry2);
+
+            const mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries([latheBufferGeometry, capBufferGeometry1, capBufferGeometry2]);
 
             const material = new THREE.MeshPhongMaterial({ 
                 color: 0xFFD700,
@@ -140,7 +148,7 @@
                 reflectivity: 0.9
             });
 
-            ring = new THREE.Mesh(geometry, material);
+            ring = new THREE.Mesh(mergedGeometry, material);
             scene.add(ring);
 
             document.getElementById('message').innerHTML = `
