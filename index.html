@@ -52,7 +52,7 @@
     </style>
 </head>
 <body>
-    <div id="version">Pracovna verzia #22</div>
+    <div id="version">Pracovna verzia #23</div>
     <label for="ringSize">Veľkosť prsteňa:</label>
     <input type="number" id="ringSize" min="42" max="70" value="52">
     <button id="generateButton">Generovať prsteň</button>
@@ -63,7 +63,7 @@
 
     <script>
         let ring;
-        let versionNumber = 22;  // Manuálne inkrementujte toto číslo pri každej aktualizácii kódu
+        let versionNumber = 23;  // Manuálne inkrementujte toto číslo pri každej aktualizácii kódu
         const ringSize = 52;
 
         const renderer = new THREE.WebGLRenderer();
@@ -164,7 +164,7 @@
             crossSectionScene.add(crossSectionLine);
 
             document.getElementById('message').innerHTML = `
-                Vygenerovala sa Ti prsteň veľkosti: ${size} mm<br>
+                Vygeneroval sa Ti prsteň veľkosti: ${size} mm<br>
                 Výška prsteňa je: ${width.toFixed(2)} mm<br>
                 Síla: ${thickness.toFixed(2)} mm<br>
                 Zaoblenie: ${rounding} mm
