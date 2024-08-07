@@ -52,7 +52,7 @@
     </style>
 </head>
 <body>
-    <div id="version">Pracovna verzia #21</div>
+    <div id="version">Pracovna verzia #22</div>
     <label for="ringSize">Veľkosť prsteňa:</label>
     <input type="number" id="ringSize" min="42" max="70" value="52">
     <button id="generateButton">Generovať prsteň</button>
@@ -63,7 +63,7 @@
 
     <script>
         let ring;
-        let versionNumber = 21;  // Manuálne inkrementujte toto číslo pri každej aktualizácii kódu
+        let versionNumber = 22;  // Manuálne inkrementujte toto číslo pri každej aktualizácii kódu
         const ringSize = 52;
 
         const renderer = new THREE.WebGLRenderer();
@@ -126,6 +126,7 @@
 
             const width = Math.random() * (4.5 - 2) + 2;
             const thickness = Math.random() * (1.8 - 1.5) + 1.5;
+            const rounding = 0.15;
 
             const shape = new THREE.Shape();
             const halfWidth = width / 2;
@@ -133,13 +134,13 @@
             // Vytvorenie prsteňa so zaoblenými rohmi
             shape.moveTo(radius, -halfWidth);
             shape.lineTo(radius, halfWidth);
-            shape.quadraticCurveTo(radius, halfWidth + 0.15, radius + 0.15, halfWidth + 0.15);
-            shape.lineTo(radius + thickness - 0.15, halfWidth + 0.15);
-            shape.quadraticCurveTo(radius + thickness, halfWidth + 0.15, radius + thickness, halfWidth);
+            shape.quadraticCurveTo(radius, halfWidth + rounding, radius + rounding, halfWidth + rounding);
+            shape.lineTo(radius + thickness - rounding, halfWidth + rounding);
+            shape.quadraticCurveTo(radius + thickness, halfWidth + rounding, radius + thickness, halfWidth);
             shape.lineTo(radius + thickness, -halfWidth);
-            shape.quadraticCurveTo(radius + thickness, -halfWidth - 0.15, radius + thickness - 0.15, -halfWidth - 0.15);
-            shape.lineTo(radius + 0.15, -halfWidth - 0.15);
-            shape.quadraticCurveTo(radius, -halfWidth - 0.15, radius, -halfWidth);
+            shape.quadraticCurveTo(radius + thickness, -halfWidth - rounding, radius + thickness - rounding, -halfWidth - rounding);
+            shape.lineTo(radius + rounding, -halfWidth - rounding);
+            shape.quadraticCurveTo(radius, -halfWidth - rounding, radius, -halfWidth);
 
             // Zabezpečenie uzavretia tvaru
             shape.closePath();
@@ -162,14 +163,28 @@
             const crossSectionLine = new THREE.Line(crossSectionGeometry, lineMaterial);
             crossSectionScene.add(crossSectionLine);
 
-            document.getElementById('message').innerText = `Vygenerovala sa Ti prsteň veľkosti ${size}`;
+            document.getElementById('message').innerHTML = `
+                Vygenerovala sa Ti prsteň veľkosti: ${size} mm<br>
+                Výška prsteňa je: ${width.toFixed(2)} mm<br>
+                Síla: ${thickness.toFixed(2)} mm<br>
+                Zaoblenie: ${rounding} mm
+            `;
         }
 
         function downloadSTL() {
             if (!ring) return;
 
-            // Rotácia prstena pred exportom
+            // Rotácia a zarovnanie prstena pred exportom
             ring.rotation.set(Math.PI / 2, 0, 0);
+            const box = new THREE.Box3().setFromObject(ring);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+
+            // Nastavíme prsteň tak, aby ležal na podložke
+            ring.position.x = -center.x;
+            ring.position.y = -center.y + size.y / 2;
+            ring.position.z = -center.z;
+
             const exporter = new THREE.STLExporter();
             const stlString = exporter.parse(ring);
             const blob = new Blob([stlString], { type: 'application/octet-stream' });
@@ -179,8 +194,9 @@
             link.download = `ring_${ringSize}.stl`;
             link.click();
 
-            // Resetovanie rotácie prstena po exporte
+            // Resetovanie rotácie a pozície prstena po exporte
             ring.rotation.set(0, 0, 0);
+            ring.position.set(0, 0, 0);
         }
 
         function animate(time) {
